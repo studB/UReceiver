@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-Main-Class: org.daeyoung.Receiver
-Class-Path: /Users/bdy/.gradle/caches/modules-2/files-2.1/com.google.gua
- va/guava/18.0/cce0823396aa693798f8882e64213b1772032b09/guava-18.0.jar
-
