@@ -1,0 +1,43 @@
+plugins {
+    id 'java'
+}
+
+group 'org.daeyoung'
+version '0.1.0'
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    implementation {
+        canBeResolved = true
+    }
+}
+
+dependencies {
+    implementation 'com.google.guava:guava:18.0'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+jar {
+    manifest {
+        attributes (
+                'Main-Class' : 'org.daeyoung.Receiver',
+                "Class-Path": configurations.implementation.collect { it.absolutePath }.join(" ")
+        )
+    }
+}
+
+tasks.register('list') {
+    dependsOn configurations.implementation
+    doLast {
+        println "classpath = ${configurations.implementation.collect { it.absolutePath }.join(" ")}"
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
