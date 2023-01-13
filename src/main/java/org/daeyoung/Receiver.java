@@ -13,6 +13,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.daeyoung.Decoder.decomposePacket;
+
 public class Receiver {
 
     static Logger logger = Logger.getLogger("UReceiver");
@@ -28,12 +30,13 @@ public class Receiver {
         Properties globalConfigs = new Properties();
         globalConfigs.load(new FileInputStream(globalConfigPath));
 
-        final int port = Integer.parseInt(globalConfigs.getProperty("PORT"));
+        final int PORT = Integer.parseInt(globalConfigs.getProperty("PORT"));
+        final String RESPONSE_TYPE = globalConfigs.getProperty("RESPONSE_TYPE"); // AUTO, INPUT
 
         try {
-            socket = new DatagramSocket(port);
+            socket = new DatagramSocket(PORT);
             running = true;
-            logger.log(Level.INFO, String.format("RUN U-RECEIVER : (port) %d", port));
+            logger.log(Level.INFO, String.format("RUN U-RECEIVER : (port) %d", PORT));
         } catch (SocketException e) { logger.log(Level.SEVERE,"BAD SERVER RUNNING !"); e.printStackTrace(); }
 
         while (running) {
@@ -49,7 +52,8 @@ public class Receiver {
                         + decomposePacket(packet.getLength(), ByteBuffer.wrap(packet.getData()))
                 );
 
-                byte[] responseMsgBuf = "(Response) OK\n".getBytes();
+                Response response = new Response(RESPONSE_TYPE);
+                byte[] responseMsgBuf = response.prepareResponse();
                 packet = new DatagramPacket(responseMsgBuf, responseMsgBuf.length, packet.getAddress(), packet.getPort());
                 socket.send(packet);
             } catch (IOException e) { logger.log(Level.SEVERE, "BAD COMMUNICATION !"); e.printStackTrace(); }
@@ -57,13 +61,4 @@ public class Receiver {
         }
     }
 
-    public static String decomposePacket(int length, ByteBuffer byteBuffer) {
-        int idx = 0;
-        ArrayList<String> byteArrayList = new ArrayList<>();
-        while (length > idx) {
-            byteArrayList.add( UnsignedBytes.toString(byteBuffer.get()));
-            idx++;
-        }
-        return String.format("ByteBuffer[%d] { %s }", length, String.join(", ", byteArrayList));
-    }
 }
